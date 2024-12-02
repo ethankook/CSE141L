@@ -47,7 +47,7 @@ string encodeR(const vector<string> &tokens, const unordered_map<string, string>
     return "0" + registerFileAddress1 + registerFileAddress2 + opcode;
 }
 
-string encodeLdr(const vector<string> &tokens, const unordered_map<string, string> &opcodes){
+string encodeLdrStr(const vector<string> &tokens, const unordered_map<string, string> &opcodes){
     string opcode = opcodes.at(tokens[0]);
     string registerFileAddress1 = registerToBinary2bits(tokens[1]);
     string registerFileAddress2 = registerToBinary2bits(tokens[2]); 
@@ -173,12 +173,12 @@ void assemble (const string &inputFile, const string &outputFile){
                     continue;
                 }
                 instruction = encodeB(tokens, opcodes);
-            } else if (tokens[0]=="ldr") {
+            } else if (tokens[0]=="ldr" || tokens[0]=="str") {
                 if (tokens.size() != 3) {
                     cerr << "Error: invalid number of arguments at line: " << line << endl;
                     continue;
                 }
-                instruction = encodeLdr(tokens, opcodes);
+                instruction = encodeLdrStr(tokens, opcodes);
             } else {
                 if (tokens.size() != 3) {
                     cerr << "Error: invalid number of arguments at line: " << line << endl;
