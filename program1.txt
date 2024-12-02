@@ -1,0 +1,107 @@
+mov 0
+ldr r0, r2
+mov 1
+ldr r0, r3 # load input into r2 and r3
+mov 0
+bne r2 0
+bne r3 0
+mot r1 1	# move 0 into r1
+mov 2
+str r0 r1
+mov 3
+str r0 r1 # done flag
+mov 1
+lso r0 0
+lso r0 0
+lso r0 0
+lso r0 0
+lso r0 0
+lso r0 0
+lso r0 0
+bne r2 1
+mov 0
+bne r3 1
+mov 1
+mot r1 1
+mov 15 	# 1111_1000_0000_0000 is max neg return val, setting up and returning here
+lso r0 0
+add r1 r0
+lso r1 0
+lso r1 0
+lso r1 0
+mov 2
+str r0 r1 	# stores the most significant bits
+mov 0
+mot r1 1
+mov 3
+str r0 r1	# stores the least significant bits done flag
+mov 1
+mot r1 1	# place a 1 in r1 to compare with r0 later
+mot r2 0	# move r2 into r0, right shift 7 times until we have 0000_000x, where x is sign bit so we can compare
+lso r0 1
+lso r0 1
+lso r0 1
+lso r0 1
+lso r0 1
+lso r0 1
+lso r0 1
+bne r1 2
+mov 7
+mot r7 0	#r7 holds sign val for later
+neg r2 r0
+neg r3 r0
+mov 0
+neg r0 r0
+bne r3 3
+neg r3 r0	# this case is for when lower byte is full, need to add 1 to upper byte
+mov 1
+add r2 r0
+mov 0		# setting up for jump
+mot r1 1
+beq r1 2	# this will always hit, skipping the normal case (if, else)
+mov 1
+add r3 r0
+mov 15
+lso r0 0	#r1 should have a 1 from earlier in it, we add this to r0 to get our exponent of 30
+mot r1 0
+mot r6 1	# move exponent val from r1 to r0 to r6, will stay in r6
+mov 1
+mot r1 1	# place 1 in r1 for easy cfb comparison each loop 
+mov 1
+sub r6 r0	# exp–
+lsl r2 r3	# get rid of sign bit
+lso r3 0
+cfb r2
+bne r1 4
+lsl r2 r3 	# one extra shift to get rid of leading 1
+lso r3 0
+mov 0
+bne r7 5 	# set up r0 to be all 0 or all 1, then left shift the exponent in
+neg r0 r0
+lso r6 0	# left shift exponent until its shifted all the way to the left in its register
+lso r6 0
+lso r6 0
+lsl r0 r6 	# now shifting exponent into r0 with sign bit (7 shifts)
+lso r6 0
+lsl r0 r6
+lso r6 0
+lsl r0 r6
+lso r6 0
+lsl r0 r6
+lso r6 0
+lsl r0 r6
+lso r6 0
+lsl r0 r6
+lso r6 0
+lsl r0 r6
+lso r6 0
+mbs r2 1 	# copy 2 leftmost bits from mantissa, and place them in r0 with the sign and exponent bits
+lsl r2 r3
+lso r3 0
+lsl r2 r3	# these bits are in the reg 0 now so can remove, only r2 should have the bits were gonna store
+lso r3 0
+mot r1 1 	# move sign/exponent/part mantissa reg into r1 so r0 can be used for holding mem slots
+mov 2 		# 2 in lookup table should correspond to byte 2 in data mem
+str r0 r1	# storing first byte
+mov 3		# 3 in lookup table should correspond to byte 2 in data mem
+str r0 r2	# storing second byte
