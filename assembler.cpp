@@ -39,20 +39,22 @@ string immediateToBinary(const string &immediate, int n){
     return fiveBit.substr(5 - n);
 
 }
-// encodes most R type instructions
+// encodes most R type instructions - And, Or, Lsl, Lsr, Add, Sub, Neg, Cmp, Str
 string encodeR(const vector<string> &tokens, const unordered_map<string, string> &opcodes){
     string opcode = opcodes.at(tokens[0]);
     string registerFileAddress1 = registerToBinary2bits(tokens[1]);
-    string registerFileAddress2 = registerToBinary3bits(tokens[2]); 
+    string registerFileAddress2 = registerToBinary2bits(tokens[2]); 
     return "0" + registerFileAddress1 + registerFileAddress2 + opcode;
 }
 
-string encodeLdrStr(const vector<string> &tokens, const unordered_map<string, string> &opcodes){
+string encodeLdr(const vector<string> &tokens, const unordered_map<string, string> &opcodes){
     string opcode = opcodes.at(tokens[0]);
     string registerFileAddress1 = registerToBinary2bits(tokens[1]);
     string registerFileAddress2 = registerToBinary2bits(tokens[2]); 
     return "0" + registerFileAddress2 + registerFileAddress1 + opcode;
 }
+
+
 //encodes B type instructions
 string encodeB(const vector<string> &tokens, const unordered_map<string, string> &opcodes) {
     string opcode = opcodes.at(tokens[0]);
@@ -72,13 +74,23 @@ string encodeMov(const vector<string> &tokens, const unordered_map<string, strin
     return "0" + newValue + opcode;
 }
 
-//encodes Mot/ lso/ Mbs
+//encodes Mot/ lso
 string encodeMot(const vector<string> &tokens, const unordered_map<string, string> &opcodes){
     string opcode = opcodes.at(tokens[0]);
     string registerFileAddress = registerToBinary3bits(tokens[1]);
     string direction = immediateToBinary(tokens[2], 1);
     return "0" + registerFileAddress + direction + opcode;
+    
 }
+
+string encodeMbs(const vector<string> &tokens, const unordered_map<string, string> &opcodes){
+    string opcode = opcodes.at(tokens[0]);
+    string registerFileAddress = registerToBinary3bits(tokens[1]);
+    string direction = immediateToBinary(tokens[2], 1);
+    direction = (direction == "1") ? "0" : "1";
+    return "0" + registerFileAddress + direction + opcode;
+}
+
 //encodes cfb instruction
 string encodeCfb(const vector<string> &tokens, const unordered_map<string, string> &opcodes){
     string opcode = opcodes.at(tokens[0]);
@@ -145,46 +157,49 @@ void assemble (const string &inputFile, const string &outputFile){
         if (tokens.empty() || line.empty()) continue;
 
         if(opcodes.find(tokens[0]) != opcodes.end()){
-            if(tokens[0]=="cfb"){
-                if (tokens.size() != 2) {
-                    cerr << "Error: invalid number of arguments at line: " << line << endl;
-                    continue;
-                }
-                instruction = encodeCfb(tokens, opcodes);
-            } else if(tokens[0]=="mov"){
-                if (tokens.size() != 2) {
-                    cerr << "Error: invalid number of arguments at line: " << line << endl;
-                    continue;
-                }
-                instruction = encodeMov(tokens, opcodes);
-            } else if(tokens[0]=="mot" || tokens[0]=="lso" || tokens[0]=="mbs"){
-                if (tokens.size() != 3) {
-                    cerr << "Error: invalid number of arguments at line: " << line << endl;
-                    continue;
-                }
-                instruction = encodeMot(tokens, opcodes);
-            } else if(tokens[0]=="beq" || tokens[0]=="bne"){
-                if (tokens.size() != 3) {
-                    cerr << "Error: invalid number of arguments at line: " << line << endl;
-                    continue;
-                }
-                if (stoi(tokens[2]) < 0 || stoi(tokens[2]) > 31) {
-                    cerr << "Error: LUT index out of range at line: " << line << endl;
-                    continue;
-                }
-                instruction = encodeB(tokens, opcodes);
-            } else if (tokens[0]=="ldr" || tokens[0]=="str") {
-                if (tokens.size() != 3) {
-                    cerr << "Error: invalid number of arguments at line: " << line << endl;
-                    continue;
-                }
-                instruction = encodeLdrStr(tokens, opcodes);
-            } else {
+            if(tokens[0]=="and" || tokens[0]=="or" || tokens[0]=="lsl" || tokens[0]=="lsr" || tokens[0]=="add" || tokens[0]=="sub" || tokens[0]=="neg" || tokens[0]=="cmp" || tokens[0]=="str"){
                 if (tokens.size() != 3) {
                     cerr << "Error: invalid number of arguments at line: " << line << endl;
                     continue;
                 }
                 instruction = encodeR(tokens, opcodes);
+            } else if(tokens[0]=="ldr"){
+                if(tokens.size() != 3){
+                    cerr << "Error: invalid number of arguments at line: " << line << endl;
+                    continue;
+                }
+                instruction = encodeLdr(tokens, opcodes);
+            } else if(tokens[0]=="bne" || tokens[0]=="beq"){
+                if(tokens.size() != 3){
+                    cerr << "Error: invalid number of arguments at line: " << line << endl;
+                    continue;
+                }
+                instruction = encodeB(tokens, opcodes);
+            } else if(tokens[0]=="mov"){
+                if(tokens.size() != 2){
+                    cerr << "Error: invalid number of arguments at line: " << line << endl;
+                    continue;
+                }
+                instruction = encodeMov(tokens, opcodes);
+            } else if(tokens[0]=="mot" || tokens[0]=="lso"){
+                if(tokens.size() != 3){
+                    cerr << "Error: invalid number of arguments at line: " << line << endl;
+                    continue;
+                }
+                instruction = encodeMot(tokens, opcodes);
+            } else if(tokens[0]=="cfb"){
+                if(tokens.size() != 2){
+                    cerr << "Error: invalid number of arguments at line: " << line << endl;
+                    continue;
+                }
+                instruction = encodeCfb(tokens, opcodes);
+            } else if(tokens[0]=="mbs"){
+                if(tokens.size() != 3){
+                    cerr << "Error: invalid number of arguments at line: " << line << endl;
+                    continue;
+                }
+                instruction = encodeMbs(tokens, opcodes);
+
             }
 
         }
