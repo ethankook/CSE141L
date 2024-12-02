@@ -12,14 +12,14 @@ using namespace std;
 
 // converts register to binary
 string registerToBinary(const string &reg){ 
-    if(reg == "R0") return "000";
-    if(reg == "R1") return "001";
-    if(reg == "R2") return "010";
-    if(reg == "R3") return "011";
-    if(reg == "R4") return "100";
-    if(reg == "R5") return "101";
-    if(reg == "R6") return "110";
-    if(reg == "R7") return "111";
+    if(reg == "R0" || reg == "r0") return "000";
+    if(reg == "R1" || reg == "r1") return "001";
+    if(reg == "R2" || reg == "r2") return "010";
+    if(reg == "R3" || reg == "r3") return "011";
+    if(reg == "R4" || reg == "r4") return "100";
+    if(reg == "R5" || reg == "r5") return "101";
+    if(reg == "R6" || reg == "r6") return "110";
+    if(reg == "R7" || reg == "r7") return "111";
     return "";
 
 }
