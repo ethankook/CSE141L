@@ -1,7 +1,7 @@
 mov 0
-ldr r0, r2
+ldr r0 r2
 mov 1
-ldr r0, r3 # load input into r2 and r3
+ldr r0 r3 # load input into r2 and r3
 mov 0
 bne r2 0
 bne r3 0
